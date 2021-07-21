@@ -174,7 +174,7 @@ for t in range(epochNum):
         correct = torch.zeros(1).squeeze().to(device)
         total = torch.zeros(1).squeeze().to(device)
         sumLoss_t = torch.zeros(1).squeeze().to(device)
-        for i, (X_raw, X_seg, Y) in enumerate(testSet):
+        for i, (X_raw, X_seg, Y) in enumerate(testLoader):
             X_seg = torch.tensor([X_seg]).cuda()
             X_seg = X_seg.type(torch.cuda.FloatTensor).to(device)
             X_raw = torch.tensor([X_raw]).cuda()
