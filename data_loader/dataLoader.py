@@ -1,6 +1,6 @@
 import h5py
 import numpy as np
-
+from torch.utils.data import Dataset
 class dataLoader():
     def __init__(self, H5path):
         self.h5file = h5py.File(H5path,'r')
@@ -22,3 +22,16 @@ class dataLoader():
         self.neg_s_sample_seg_b = np.array(self.h5file["splitSegmentation_bin"])
         self.neg_s_sample_location = np.array(self.h5file["splitCenters"])
         self.neg_s_sample_raw = np.array(self.h5file["splitRawData"])
+
+class dataSet(Dataset):
+    def __init__(self, rawData, segmentation, label):
+        self.rawData = rawData
+        self.segmentation = segmentation
+        self.label = label
+    def __getitem__(self, index):
+        raw = self.rawData[index]
+        seg = self.segmentation[index]
+        lab = self.label[index]
+        return raw, seg, lab
+    def __len__(self):
+        return len(self.images)
