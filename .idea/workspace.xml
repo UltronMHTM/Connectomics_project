@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2e2291e5-c8c3-4154-8b40-018c76bcb57e" name="Default Changelist" comment="" />
+    <list default="true" id="2e2291e5-c8c3-4154-8b40-018c76bcb57e" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/model/target_layer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/FPN.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/FPN.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/configs.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/configs.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,6 +20,9 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1v9L444AywRck4jBGXOrfgY2SaQ" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -23,17 +31,18 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/DataGeneration" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/model" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\UIC\Desktop\FYP_WP\model" />
+      <recent name="F:\FYP_workplace\DataGeneration" />
+      <recent name="F:\FYP_workplace\DataGeneration\Dataset2_training2" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="F:\FYP_workplace\DataGeneration" />
       <recent name="F:\FYP_workplace\DataGeneration\Dataset1_validation" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="F:\FYP_workplace\DataGeneration" />
-      <recent name="F:\FYP_workplace\DataGeneration\Dataset2_training2" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -176,6 +185,17 @@
       <updated>1625969163918</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="WindowStateProjectService">
     <state x="833" y="239" key="com.intellij.ide.util.TipDialog" timestamp="1626753642255">
