@@ -100,14 +100,14 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, im_info, _feat_stride, all_anch
     # only the positive ones have regression targets
     # bbox_inside_weights 它实际上就是控制回归的对象的，只有真正是前景的对象才会被回归
     # 对应labels==1的引索,全零的四个元素变为(1.0, 1.0, 1.0, 1.0)
-    bbox_inside_weights = np.zeros((len(index_inside), 4), dtype=np.float32)
+    bbox_inside_weights = np.zeros((len(index_inside), 6), dtype=np.float32)
     bbox_inside_weights[labels == 1, :] = np.array((1.0, 1.0, 1.0, 1.0))  # TODO:
 
     # bbox_outside_weights 就是为了平衡 box_loss,cls_loss 的，因为二个loss差距过大，所以它被设置为 1/N 的权重
-    bbox_outside_weights = np.zeros((len(index_inside), 4), dtype=np.float32)
+    bbox_outside_weights = np.zeros((len(index_inside), 6), dtype=np.float32)
     num_examples = np.sum(labels >= 0)
-    positive_weights = np.ones((1, 4)) * 1.0 / num_examples
-    negative_weights = np.ones((1, 4)) * 1.0 / num_examples
+    positive_weights = np.ones((1, 6)) * 1.0 / num_examples
+    negative_weights = np.ones((1, 6)) * 1.0 / num_examples
     bbox_outside_weights[labels == 1, :] = positive_weights  # 1/256
     bbox_outside_weights[labels == 0, :] = negative_weights
 
@@ -125,15 +125,15 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, im_info, _feat_stride, all_anch
     rpn_labels = labels
 
     # bbox_targets
-    bbox_targets = bbox_targets.reshape((1, height, width, A * 4))
+    bbox_targets = bbox_targets.reshape((1, height, width, A * 6))
     rpn_bbox_targets = bbox_targets
 
     # bbox_inside_weights
-    bbox_inside_weights = bbox_inside_weights.reshape((1, height, width, A * 4))
+    bbox_inside_weights = bbox_inside_weights.reshape((1, height, width, A * 6))
     rpn_bbox_inside_weights = bbox_inside_weights
 
     # bbox_outside_weights
-    bbox_outside_weights = bbox_outside_weights.reshape((1, height, width, A * 4))
+    bbox_outside_weights = bbox_outside_weights.reshape((1, height, width, A * 6))
     rpn_bbox_outside_weights = bbox_outside_weights
 
     return rpn_labels, rpn_bbox_targets, rpn_bbox_inside_weights, rpn_bbox_outside_weights
@@ -189,11 +189,11 @@ def _compute_targets(ex_rois, gt_rois):
     # 要求anchor与对应匹配最好GT个数相同
     assert ex_rois.shape[0] == gt_rois.shape[0]
     # 要有anchor左上角与右下角坐标，有4个元素
-    assert ex_rois.shape[1] == 4
+    assert ex_rois.shape[1] == 6
     # GT有标签位，所以为5个
-    assert gt_rois.shape[1] == 5  # TODO:原始是5
+    assert gt_rois.shape[1] == 7  # TODO:原始是5
     # 返回一个用于anchor回归成target的包含每个anchor回归值(dx、dy、dw、dh)的array
-    return bbox_transform(ex_rois, gt_rois[:, :4]).astype(np.float32, copy=False)
+    return bbox_transform(ex_rois, gt_rois[:, :6]).astype(np.float32, copy=False)
 
 
 # 负责在训练RoIHead/Fast R-CNN的时候，从RoIs选择一部分(比如128个)用以训练
@@ -217,11 +217,11 @@ def proposal_target_layer(rpn_rois, rpn_scores, gt_boxes, _num_classes):
         all_rois, all_scores, gt_boxes, fg_rois_per_image,
         rois_per_image, _num_classes)
 
-    rois = rois.reshape(-1, 5)
+    rois = rois.reshape(-1, 7)
     roi_scores = roi_scores.reshape(-1)
     labels = labels.reshape(-1, 1)
-    bbox_targets = bbox_targets.reshape(-1, _num_classes * 4)
-    bbox_inside_weights = bbox_inside_weights.reshape(-1, _num_classes * 4)
+    bbox_targets = bbox_targets.reshape(-1, _num_classes * 6)
+    bbox_inside_weights = bbox_inside_weights.reshape(-1, _num_classes * 6)
     bbox_outside_weights = np.array(bbox_inside_weights > 0).astype(np.float32)
 
     return rois, roi_scores, labels, bbox_targets, bbox_inside_weights, bbox_outside_weights

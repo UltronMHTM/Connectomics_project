@@ -24,6 +24,10 @@ class FPN(nn.Module):
         self.relu = nn.ReLU().cuda()
         self.scorChal_conv = nn.Conv3d(in_channels=512, out_channels=self._num_anchor_types * 2, kernel_size=1, stride=1, padding=0).cuda()
         self.bboxChal_conv = nn.Conv3d(in_channels=512, out_channels=self._num_anchor_types * 6, kernel_size=1, stride=1, padding=0).cuda()  # 1, _num_anchor_types * 6, 14, 14, 56
+        self.Pooling = nn.MaxPool3d(kernel_size=2, stride=2).cuda()
+        self.fc6 = nn.Linear(4096, 4096).cuda()
+        self.fc6 = nn.Linear(4096, 4096).cuda()
+
     def get_anchors(self):
         # TODO:这个16是原图到feature map缩小的倍数,提出来？ # 如何断定原图到feature map的倍数为16？ 中间的VGG层确定了？
         height_of_feature_map = torch.ceil(torch.tensor(self.image_info[0] / (16.0)))
@@ -85,12 +89,30 @@ class FPN(nn.Module):
 
         def clip_boxes_tf(boxes, im_info):
             # 按照图像大小裁剪boxes
-            b0 = torch.maximum(torch.minimum(boxes[:, 0], im_info[2] - 1), 0)   # ????????
-            b1 = torch.maximum(torch.minimum(boxes[:, 1], im_info[1] - 1), 0)
-            b2 = torch.maximum(torch.minimum(boxes[:, 2], im_info[0] - 1), 0)
-            b3 = torch.maximum(torch.minimum(boxes[:, 3], im_info[2] - 1), 0)
-            b4 = torch.maximum(torch.minimum(boxes[:, 4], im_info[1] - 1), 0)
-            b5 = torch.maximum(torch.minimum(boxes[:, 5], im_info[0] - 1), 0)
+            # b0 = torch.maximum(torch.minimum(boxes[:, 0], im_info[2] - 1), 0)   # ????????
+            # b1 = torch.maximum(torch.minimum(boxes[:, 1], im_info[1] - 1), 0)
+            # b2 = torch.maximum(torch.minimum(boxes[:, 2], im_info[0] - 1), 0)
+            # b3 = torch.maximum(torch.minimum(boxes[:, 3], im_info[2] - 1), 0)
+            # b4 = torch.maximum(torch.minimum(boxes[:, 4], im_info[1] - 1), 0)
+            # b5 = torch.maximum(torch.minimum(boxes[:, 5], im_info[0] - 1), 0)
+            b0 = torch.max(torch.cat((torch.min(
+                torch.cat((boxes[:, 0], (im_info[2] - 1) * torch.ones([len(boxes), 1])), 1), 1),
+                                      torch.zeros([len(boxes), 1])), 1), 1)
+            b1 = torch.max(torch.cat((torch.min(
+                torch.cat((boxes[:, 1], (im_info[1] - 1) * torch.ones([len(boxes), 1])), 1), 1),
+                                      torch.zeros([len(boxes), 1])), 1), 1)
+            b2 = torch.max(torch.cat((torch.min(
+                torch.cat((boxes[:, 2], (im_info[0] - 1) * torch.ones([len(boxes), 1])), 1), 1),
+                                      torch.zeros([len(boxes), 1])), 1), 1)
+            b3 = torch.max(torch.cat((torch.min(
+                torch.cat((boxes[:, 3], (im_info[2] - 1) * torch.ones([len(boxes), 1])), 1), 1),
+                                      torch.zeros([len(boxes), 1])), 1), 1)
+            b4 = torch.max(torch.cat((torch.min(
+                torch.cat((boxes[:, 4], (im_info[1] - 1) * torch.ones([len(boxes), 1])), 1), 1),
+                                      torch.zeros([len(boxes), 1])), 1), 1)
+            b5 = torch.max(torch.cat((torch.min(
+                torch.cat((boxes[:, 5], (im_info[0] - 1) * torch.ones([len(boxes), 1])), 1), 1),
+                                      torch.zeros([len(boxes), 1])), 1), 1)
             return torch.stack([b0, b1, b2, b3, b4, b5], axis=1)
 
         # scores = rpn_cls_prob[:, :, :, self._num_anchor_types:]     # why cut the front
@@ -117,7 +139,7 @@ class FPN(nn.Module):
             rois, roi_scores, labels, bbox_targets, bbox_inside_weights, bbox_outside_weights = proposal_target_layer(rois, roi_scores, self.gt_boxes, self._num_classes)
                 # [tf.float32, tf.float32, tf.float32, tf.float32, tf.float32, tf.float32],
                 # name="proposal_target")
-            rois.set_shape([128, 5])
+            rois.set_shape([128, 7])
             roi_scores.set_shape([128])
             labels.set_shape([128, 1])
             bbox_targets.set_shape([128, self._num_classes * 6])
@@ -160,6 +182,20 @@ class FPN(nn.Module):
             return torch.reshape(reshaped_score, input_shape)  # 1*9H*W*2
             # return torch.nn.softmax(bottom, name=name)
 
+        def _anchor_target_layer(self, rpn_class_score, name):
+            # with tf.variable_scope(name) as scope:
+            rpn_labels, rpn_bbox_targets, rpn_bbox_inside_weights, rpn_bbox_outside_weights = anchor_target_layer(rpn_class_score, self.gt_boxes, self.image_info, 16, self.anchors, self._num_anchor_types0)
+            rpn_labels.set_shape([1, 1, None, None])
+            rpn_bbox_targets.set_shape([1, None, None, self._num_anchor_types * 4])
+            rpn_bbox_inside_weights.set_shape([1, None, None, self._num_anchor_types * 4])
+            rpn_bbox_outside_weights.set_shape([1, None, None, self._num_anchor_types * 4])
+            # rpn_labels = tf.to_int32(rpn_labels, name="to_int32")
+            self._anchor_targets['rpn_labels'] = rpn_labels
+            self._anchor_targets['rpn_bbox_targets'] = rpn_bbox_targets
+            self._anchor_targets['rpn_bbox_inside_weights'] = rpn_bbox_inside_weights
+            self._anchor_targets['rpn_bbox_outside_weights'] = rpn_bbox_outside_weights
+            return rpn_labels
+
         # convolution and relu first
         # rpn = tf.layers.conv2d(inputs=self.feature_map, filters=512, kernel_size=[3, 3], padding='SAME',
         #                        trainable=is_training)
@@ -178,10 +214,10 @@ class FPN(nn.Module):
                                          2000)  # draw coarse bounding box, filter the front 2000 boxes
             rpn_labels = self._anchor_target_layer(rpn_class_score,
                                                    "anchor")  # filter some proposal through some predefined thresholds
-            with torch.control_dependencies([rpn_labels]):
-                # trace back the target
-                rois, _ = self._proposal_target_layer(rois, scores,
-                                                      "rpn_rois")  # according to these bounding box, generate the data will be trained
+            # with torch.control_dependencies([rpn_labels]):
+            #     # trace back the target
+            rois, _ = self._proposal_target_layer(rois, scores,
+                                                  "rpn_rois")  # according to these bounding box, generate the data will be trained
         else:
             rois, _ = self.get_rois(rpn_cls_prob, rpn_bbox_pred, 300)
 
@@ -193,9 +229,52 @@ class FPN(nn.Module):
         self._predictions["rois"] = rois
         self._rois = rois
 
+    def roi_pooling(self):
+        batch_ids = torch.squeeze(torch.slice(self._rois, [0, 0], [-1, 1], name="batch_id"), [1])
+        # 获取包围框归一化后的坐标系（坐标与原图比例）
+        bottom_shape = tf.shape(self.feature_map)
+        height = (tf.to_float(bottom_shape[1]) - 1.) * tf.to_float(16)  # TODO:
+        width = (tf.to_float(bottom_shape[2]) - 1.) * tf.to_float(16)
+        x1 = tf.slice(self._rois, [0, 1], [-1, 1], name="x1") / width
+        y1 = tf.slice(self._rois, [0, 2], [-1, 1], name="y1") / height
+        x2 = tf.slice(self._rois, [0, 3], [-1, 1], name="x2") / width
+        y2 = tf.slice(self._rois, [0, 4], [-1, 1], name="y2") / height
+
+        bboxes = tf.stop_gradient(tf.concat([y1, x1, y2, x2], axis=1))
+        pre_pool_size = 7 * 2
+        crops = tf.image.crop_and_resize(self.feature_map, bboxes, tf.to_int32(batch_ids),
+                                         [pre_pool_size, pre_pool_size],
+                                         name="crops")
+
+        self._pool = tf.layers.max_pooling2d(crops, [2, 2], 2, 'same')
+
+    def head_to_tail(self, is_training):    # only 2 full connected? where is relu?
+        pool_flatten = tf.layers.flatten(self._pool)
+        fc6 = tf.layers.dense(pool_flatten, 4096)
+        if is_training:
+            fc6 = tf.layers.dropout(fc6, rate=0.5, training=True)
+        self._fc7 = tf.layers.dense(fc6, 4096)
+        if is_training:
+            self._fc7 = tf.layers.dropout(self._fc7, rate=0.5, training=True)
+
+    def region_classification(self, is_training):
+
+        # use softmax to get each classes probability
+        cls_score = tf.layers.dense(self._fc7, self._num_classes, trainable=is_training)
+        cls_prob = tf.nn.softmax(cls_score)
+
+        # use full convolutional layer to generate precise bounding box
+        cls_pred = tf.argmax(cls_score, axis=1)
+        bbox_pred = tf.layers.dense(self._fc7, self._num_classes * 4, trainable=is_training)
+
+        self._predictions["cls_score"] = cls_score
+        self._predictions["cls_pred"] = cls_pred
+        self._predictions["cls_prob"] = cls_prob
+        self._predictions["bbox_pred"] = bbox_pred
+
     def build(self, is_training):
         self.get_anchors()
-        self.region_proposal(is_training)
+        # self.region_proposal(is_training)
         self.roi_pooling()
         self.head_to_tail(is_training)
         self.region_classification(is_training)
@@ -208,4 +287,9 @@ class FPN(nn.Module):
         rpn_class_score = self.scorChal_conv(rpn) # 1, 2*anchor_type, 14, 14, 56
         rpn_bbox_pred = self.bboxChal_conv(rpn)   # 1, 6*anchor_type, 14, 14, 56
         self.region_proposal(self, is_training, rpn_class_score, rpn_bbox_pred)
+
+#         here we get the result cropped from feature map
+        pooling_res = self.Pooling(crops)
+        pooling_res = torch.flatten(pooling_res)
+
 

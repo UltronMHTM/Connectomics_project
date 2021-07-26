@@ -2,11 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e2291e5-c8c3-4154-8b40-018c76bcb57e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/testFolder/testRPN.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/FPN.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/FPN.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/anchors_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/anchors_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/configs.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/configs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/target_layer.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/target_layer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/testFolder/testPytorch.py" beforeDir="false" afterPath="$PROJECT_DIR$/testFolder/testPytorch.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -58,7 +57,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python tests.Unittests in testRPN.py">
+  <component name="RunManager" selected="Python.testPytorch">
     <configuration name="FPN" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="FYP_workplace" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -101,6 +100,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="testPytorch" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="FYP_workplace" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/testFolder" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/testFolder/testPytorch.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="Unittests for testRPN.Test_segmentation" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="FYP_workplace" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -112,20 +132,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
       <option name="_new_target" value="&quot;testRPN.Test_segmentation&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Unittests for testRPN.Test_segmentation.test_get_anchors" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
-      <module name="FYP_workplace" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/testFolder" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;testRPN.Test_segmentation.test_get_anchors&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
@@ -145,11 +151,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.testPytorch" />
         <item itemvalue="Python tests.Unittests in testRPN.py" />
         <item itemvalue="Python.anchors_utils" />
         <item itemvalue="Python.FPN" />
         <item itemvalue="Python tests.Unittests for testRPN.Test_segmentation" />
-        <item itemvalue="Python tests.Unittests for testRPN.Test_segmentation.test_get_anchors" />
       </list>
     </recent_temporary>
   </component>
